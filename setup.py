@@ -1,5 +1,4 @@
 from setuptools import setup, find_packages
-import os
 
 VERSION = '1.0'
 DESCRIPTION = "Scan connected IP's using GreyNoise API"
