@@ -113,6 +113,7 @@ def no_background():
         connect(api, pr[pp])    # Run connect() using 'api' provided by conf.py and first IP from 'pr'
         pp = pp + 1             # Upgrade our index
 
+# Function will be used if given '--log' from command line.
 def with_logging():
     # Check if our OS is Linux/Unix
     if not os.name == 'posix':
@@ -154,6 +155,7 @@ def with_logging():
         # 'checktime' is defined in configuration file, and should be modifed by user, depending on how often IP Checker should repeat scan
         time.sleep(checktime)
 
+# Main function. Will be called in __main__.py
 def main():
     # Check arguments from command line and then run with choosen argument.
     if args.log:
