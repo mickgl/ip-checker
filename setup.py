@@ -12,8 +12,8 @@ setup(
     version=VERSION,
     author="michgl",
     author_email="<michgl33s@gmail.com>",
-    url="https://github.com/mickgl/ip-checker"
-    license="MIT License"
+    url="https://github.com/mickgl/ip-checker",
+    license="MIT License",
     description=DESCRIPTION,
     long_description_content_type="text/markdown",
     long_description=LONG_DESCRIPTION,
