@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = '1.0'
+VERSION = '1.1'
 DESCRIPTION = "Scan connected IP's using GreyNoise API"
 
 with open("README.md", 'r') as fh:
@@ -13,6 +13,7 @@ setup(
     author="michgl",
     author_email="<michgl33s@gmail.com>",
     url="https://github.com/mickgl/ip-checker"
+    license="MIT License"
     description=DESCRIPTION,
     long_description_content_type="text/markdown",
     long_description=LONG_DESCRIPTION,
@@ -22,7 +23,7 @@ setup(
     ipchecker = ipchecker.ipchecker:main
     """,
     classifiers=[
-        "Development Status :: 1 - Planning",
+        "Development Status :: 2 - Alpha",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License"
         "Programming Language :: Python :: 3",
