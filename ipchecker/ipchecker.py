@@ -5,7 +5,7 @@
 # IP Checker
 # Tool to check currently connected IP using GreyNoise API.
 # 
-# Version 1.0 
+# Version 1.1 
 
 import os
 import sys
@@ -165,4 +165,3 @@ def main():
     # If no argument given, run program in default mode.
     else:
         default()
-
