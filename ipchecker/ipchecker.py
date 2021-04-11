@@ -5,7 +5,7 @@
 # IP Checker
 # Tool to check currently connected IP using GreyNoise API.
 # 
-# Version 1.1 
+# Version 1.2
 
 import os
 import sys
@@ -13,11 +13,13 @@ import requests
 import subprocess
 import time
 import argparse
+import site
 from .conf import *
 
 cmd = argparse.ArgumentParser(prog="ipchecker", description="IP Checker - scan connected IP using GreyNoise API")
 cmd.add_argument("--log", help="save all IP's in text file, default '/var/log/ip-checker'", action='store_true')
 cmd.add_argument("--no-background", help='perform one scan and exit', action='store_true')
+cmd.add_argument("--cfg", help="access configuration file with your default text editor", action='store_true')
 args = cmd.parse_args()
 
 # Function will be used if 'paranoia' variable is set to 'high' in configuration file.
@@ -26,7 +28,7 @@ def high(r):
 
 # Function will be used if 'paranoia' variable is set to 'medium' in configuration file.
 def med(r):
-    if '"riot":false' in r:
+    if '"riot": false' in r:
         print(r)
 
 # Function will be used if 'paranoia' variable is set to 'low' in configuration file.
@@ -60,9 +62,16 @@ def default():
         print("Your system is not supported")
         sys.exit(1)
 
+    arg = '-anp' # Variable with argument for netstat.
+    
+    # Check if our os is BSD/macOS, if yes, change argument for netstat.
+    nsarg = os.uname()
+    if not 'Linux' in nsarg:
+        arg = '-a TCP'
+
     while True:
         # Get output about currently connected IP's from netstat
-        n1 = subprocess.Popen(['netstat', '-anp'], stdout=subprocess.PIPE) # Can be also '-tnp' if we want to look only for TCP connections or '-unp' for UDP connections. Feel free to change arguments for netstat.
+        n1 = subprocess.Popen(['netstat', arg], stdout=subprocess.PIPE) # Can be also '-tnp' if we want to look only for TCP connections or '-unp' for UDP connections. Feel free to change arguments for netstat.
         n2 = subprocess.Popen(['grep', 'ESTABLISHED'], stdin=n1.stdout, stdout=subprocess.PIPE) # Look only for established connections.
         n3 = subprocess.Popen(['grep', '-E', '-o', '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'], stdin=n2.stdout, stdout=subprocess.PIPE) # Push pure IP addreses to output
         output = subprocess.check_output(['grep', '-v', '192.168'], stdin=n3.stdout) # Exclude connections inside local network
@@ -92,8 +101,15 @@ def no_background():
         print("Your system is not supported")
         sys.exit(1)
 
+    arg = '-anp' # Variable with argument for netstat.
+    
+    # Check if our os is BSD/macOS, if yes, change argument for netstat.
+    nsarg = os.uname()
+    if not 'Linux' in nsarg:
+        arg = '-a TCP'
+
     # Get output about currently connected IP's from netstat
-    n1 = subprocess.Popen(['netstat', '-anp'], stdout=subprocess.PIPE) # Can be also '-tnp' if we want to look only for TCP connections or '-unp' for UDP connections. Feel free to change arguments for netstat.
+    n1 = subprocess.Popen(['netstat', arg], stdout=subprocess.PIPE) # Can be also '-tnp' if we want to look only for TCP connections or '-unp' for UDP connections. Feel free to change arguments for netstat.
     n2 = subprocess.Popen(['grep', 'ESTABLISHED'], stdin=n1.stdout, stdout=subprocess.PIPE) # Look only for established connections.
     n3 = subprocess.Popen(['grep', '-E', '-o', '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'], stdin=n2.stdout, stdout=subprocess.PIPE) # Push pure IP addreses to output
     output = subprocess.check_output(['grep', '-v', '192.168'], stdin=n3.stdout) # Exclude connections inside local network
@@ -113,16 +129,22 @@ def no_background():
         connect(api, pr[pp])    # Run connect() using 'api' provided by conf.py and first IP from 'pr'
         pp = pp + 1             # Upgrade our index
 
-# Function will be used if given '--log' from command line.
 def with_logging():
     # Check if our OS is Linux/Unix
     if not os.name == 'posix':
         print("Your system is not supported")
         sys.exit(1)
 
+    arg = '-anp' # Variable with argument for netstat.
+    
+    # Check if our os is BSD/macOS, if yes, change argument for netstat.
+    nsarg = os.uname()
+    if not 'Linux' in nsarg:
+        arg = '-a TCP'
+
     while True:
         # Get output about currently connected IP's from netstat
-        n1 = subprocess.Popen(['netstat', '-anp'], stdout=subprocess.PIPE) # Can be also '-tnp' if we want to look only for TCP connections or '-unp' for UDP connections. Feel free to change arguments for netstat.
+        n1 = subprocess.Popen(['netstat', arg], stdout=subprocess.PIPE) # Can be also '-tnp' if we want to look only for TCP connections or '-unp' for UDP connections. Feel free to change arguments for netstat.
         n2 = subprocess.Popen(['grep', 'ESTABLISHED'], stdin=n1.stdout, stdout=subprocess.PIPE) # Look only for established connections.
         n3 = subprocess.Popen(['grep', '-E', '-o', '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'], stdin=n2.stdout, stdout=subprocess.PIPE) # Push pure IP addreses to output
         output = subprocess.check_output(['grep', '-v', '192.168'], stdin=n3.stdout) # Exclude connections inside local network
@@ -155,13 +177,20 @@ def with_logging():
         # 'checktime' is defined in configuration file, and should be modifed by user, depending on how often IP Checker should repeat scan
         time.sleep(checktime)
 
-# Main function. Will be called in __main__.py
+def conf():
+    edt = os.environ['EDITOR']
+    cf = site.getusersitepackages() + "/ipchecker/conf.py"
+    subprocess.run([edt, cf])
+
 def main():
     # Check arguments from command line and then run with choosen argument.
     if args.log:
         with_logging()
     elif args.no_background:
         no_background()
+    elif args.cfg:
+        conf()
     # If no argument given, run program in default mode.
     else:
         default()
+

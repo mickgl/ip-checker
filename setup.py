@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = '1.1'
+VERSION = '1.2'
 DESCRIPTION = "Scan connected IP's using GreyNoise API"
 
 with open("README.md", 'r') as fh:
@@ -25,8 +25,8 @@ setup(
     classifiers=[
         "Development Status :: 1 - Planning",
         "Intended Audience :: Developers",
-        "License :: OSI Approved :: MIT License"
+        "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
-        "Operating System :: Unix",
+        "Operating System :: POSIX",
     ]
 )

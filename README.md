@@ -35,4 +35,10 @@ ipchecker --no-background
 # Configuration
 
 All configuration is made in 'conf.py' which is (for now) located in site-packages after installation.
+You can modify it directly or just use '--cfg' argument to access it from IP-Checker:
+
+```sh
+ipchecker --cfg
+```
+
 For info about configuration look at 'conf.py'.
