@@ -67,7 +67,7 @@ def default():
     # Check if our os is BSD/macOS, if yes, change argument for netstat.
     nsarg = os.uname()
     if not 'Linux' in nsarg:
-        arg = '-a TCP'
+        arg = '-an'
 
     while True:
         # Get output about currently connected IP's from netstat
@@ -106,7 +106,7 @@ def no_background():
     # Check if our os is BSD/macOS, if yes, change argument for netstat.
     nsarg = os.uname()
     if not 'Linux' in nsarg:
-        arg = '-a TCP'
+        arg = '-an'
 
     # Get output about currently connected IP's from netstat
     n1 = subprocess.Popen(['netstat', arg], stdout=subprocess.PIPE) # Can be also '-tnp' if we want to look only for TCP connections or '-unp' for UDP connections. Feel free to change arguments for netstat.
@@ -140,7 +140,7 @@ def with_logging():
     # Check if our os is BSD/macOS, if yes, change argument for netstat.
     nsarg = os.uname()
     if not 'Linux' in nsarg:
-        arg = '-a TCP'
+        arg = '-an'
 
     while True:
         # Get output about currently connected IP's from netstat
@@ -193,4 +193,3 @@ def main():
     # If no argument given, run program in default mode.
     else:
         default()
-
