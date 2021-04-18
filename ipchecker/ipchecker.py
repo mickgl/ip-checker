@@ -4,7 +4,7 @@
 #
 # IP Checker
 # Tool to check currently connected IP using GreyNoise API.
-# 
+#
 # Version 1.2
 
 import os
@@ -20,7 +20,18 @@ cmd = argparse.ArgumentParser(prog="ipchecker", description="IP Checker - scan c
 cmd.add_argument("--log", help="save all IP's in text file, default '/var/log/ip-checker'", action='store_true')
 cmd.add_argument("--no-background", help='perform one scan and exit', action='store_true')
 cmd.add_argument("--cfg", help="access configuration file with your default text editor", action='store_true')
+cmd.add_argument("--quiet", help="just like default but without notifications", action='store_true')
 args = cmd.parse_args()
+
+
+# Function which we will use to send notifications.
+def notify():
+    # Check if 'notify-send' installation exists.
+    ns = subprocess.call(['notify-send', '--help'], stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+    
+    # Send notification if exists.
+    if ns == 0:
+        subprocess.run(['notify-send', '-t', '3', "IP-Checker", "Check out ip-checker running terminal"])
 
 # Function will be used if 'paranoia' variable is set to 'high' in configuration file.
 def high(r):
@@ -30,11 +41,15 @@ def high(r):
 def med(r):
     if '"riot": false' in r:
         print(r)
+        if not args.quiet and not '"classification": "benign"':
+            notify()
 
 # Function will be used if 'paranoia' variable is set to 'low' in configuration file.
 def low(r):
     if '"classification": "malicious"' in r:
         print(r)
+        if not args.quiet:
+            notify()
 
 # Function which we will use to connect to API
 def connect(service, ip):
