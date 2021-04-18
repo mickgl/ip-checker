@@ -5,7 +5,7 @@
 # IP Checker
 # Tool to check currently connected IP using GreyNoise API.
 #
-# Version 1.2
+# Version 1.2.1
 
 import os
 import sys
