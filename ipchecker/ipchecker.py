@@ -5,7 +5,7 @@
 # IP Checker
 # Tool to check currently connected IP using GreyNoise API.
 #
-# Version 1.2.1
+# Version 1.2.2
 
 import os
 import sys
@@ -70,6 +70,14 @@ def connect(service, ip):
         print("Error, please check your conf.py!")
         sys.exit(1)
 
+def notlinux():
+    # Get output about currently connected IP's from netstat
+    n1 = subprocess.Popen(['netstat', '-an'], stdout=subprocess.PIPE) # Can be also '-tnp' if we want to look only for TCP connections or '-unp' for UDP connections. Feel free to change arguments for netstat.
+    n2 = subprocess.Popen(['grep', 'ESTABLISHED'], stdin=n1.stdout, stdout=subprocess.PIPE) # Look only for established connections.
+    n3 = subprocess.Popen(['grep', '-E', '-o', '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'], stdin=n2.stdout, stdout=subprocess.PIPE) # Push pure IP addreses to output
+    output = subprocess.check_output(['grep', '-v', '192.168'], stdin=n3.stdout) # Exclude connections inside local network
+
+
 # Function will be used if given no arguments from command line.
 def default():
     # Check if our OS is Linux/Unix
@@ -77,19 +85,21 @@ def default():
         print("Your system is not supported")
         sys.exit(1)
 
-    arg = '-anp' # Variable with argument for netstat.
-    
-    # Check if our os is BSD/macOS, if yes, change argument for netstat.
+    # Check if our os is BSD/macOS, if yes, use netstat.
     nsarg = os.uname()
+    osver = 0
     if not 'Linux' in nsarg:
-        arg = '-an'
+        osver = 1
 
     while True:
-        # Get output about currently connected IP's from netstat
-        n1 = subprocess.Popen(['netstat', arg], stdout=subprocess.PIPE) # Can be also '-tnp' if we want to look only for TCP connections or '-unp' for UDP connections. Feel free to change arguments for netstat.
-        n2 = subprocess.Popen(['grep', 'ESTABLISHED'], stdin=n1.stdout, stdout=subprocess.PIPE) # Look only for established connections.
-        n3 = subprocess.Popen(['grep', '-E', '-o', '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'], stdin=n2.stdout, stdout=subprocess.PIPE) # Push pure IP addreses to output
-        output = subprocess.check_output(['grep', '-v', '192.168'], stdin=n3.stdout) # Exclude connections inside local network
+        if osver == 1:
+            notlinux()
+        else:
+            # Get output about currently connected IP's using 'ss'
+            n1 = subprocess.Popen(['ss', '-tp'], stdout=subprocess.PIPE)
+            n2 = subprocess.Popen(['grep', '-E', '-o', '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'], stdin=n1.stdout, stdout=subprocess.PIPE) # Push pure IP addreses to output
+            output = subprocess.check_output(['grep', '-v', '192.168'], stdin=n2.stdout) # Exclude connections inside local network
+
 
         # Output is by default in bytes, so we will change it to string
         ips = output.decode()
@@ -116,18 +126,20 @@ def no_background():
         print("Your system is not supported")
         sys.exit(1)
 
-    arg = '-anp' # Variable with argument for netstat.
-    
-    # Check if our os is BSD/macOS, if yes, change argument for netstat.
+    # Check if our os is BSD/macOS, if yes, use netstat.
     nsarg = os.uname()
+    osver = 0
     if not 'Linux' in nsarg:
-        arg = '-an'
+        osver = 1
+        
+    if osver == 1:
+        notlinux()
+    else:
+        # Get output about currently connected IP's using 'ss'
+        n1 = subprocess.Popen(['ss', '-tp'], stdout=subprocess.PIPE)
+        n2 = subprocess.Popen(['grep', '-E', '-o', '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'], stdin=n1.stdout, stdout=subprocess.PIPE) # Push pure IP addreses to output
+        output = subprocess.check_output(['grep', '-v', '192.168'], stdin=n2.stdout) # Exclude connections inside local network
 
-    # Get output about currently connected IP's from netstat
-    n1 = subprocess.Popen(['netstat', arg], stdout=subprocess.PIPE) # Can be also '-tnp' if we want to look only for TCP connections or '-unp' for UDP connections. Feel free to change arguments for netstat.
-    n2 = subprocess.Popen(['grep', 'ESTABLISHED'], stdin=n1.stdout, stdout=subprocess.PIPE) # Look only for established connections.
-    n3 = subprocess.Popen(['grep', '-E', '-o', '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'], stdin=n2.stdout, stdout=subprocess.PIPE) # Push pure IP addreses to output
-    output = subprocess.check_output(['grep', '-v', '192.168'], stdin=n3.stdout) # Exclude connections inside local network
 
     # Output is by default in bytes, so we will change it to string
     ips = output.decode()
@@ -150,19 +162,21 @@ def with_logging():
         print("Your system is not supported")
         sys.exit(1)
 
-    arg = '-anp' # Variable with argument for netstat.
-    
-    # Check if our os is BSD/macOS, if yes, change argument for netstat.
+    # Check if our os is BSD/macOS, if yes, use netstat.
     nsarg = os.uname()
+    osver = 0
     if not 'Linux' in nsarg:
-        arg = '-an'
+        osver = 1 
 
     while True:
-        # Get output about currently connected IP's from netstat
-        n1 = subprocess.Popen(['netstat', arg], stdout=subprocess.PIPE) # Can be also '-tnp' if we want to look only for TCP connections or '-unp' for UDP connections. Feel free to change arguments for netstat.
-        n2 = subprocess.Popen(['grep', 'ESTABLISHED'], stdin=n1.stdout, stdout=subprocess.PIPE) # Look only for established connections.
-        n3 = subprocess.Popen(['grep', '-E', '-o', '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'], stdin=n2.stdout, stdout=subprocess.PIPE) # Push pure IP addreses to output
-        output = subprocess.check_output(['grep', '-v', '192.168'], stdin=n3.stdout) # Exclude connections inside local network
+        if osver == 1:
+            notlinux()
+        else:
+            # Get output about currently connected IP's using 'ss'
+            n1 = subprocess.Popen(['ss', '-tp'], stdout=subprocess.PIPE)
+            n2 = subprocess.Popen(['grep', '-E', '-o', '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'], stdin=n1.stdout, stdout=subprocess.PIPE) # Push pure IP addreses to output
+            output = subprocess.check_output(['grep', '-v', '192.168'], stdin=n2.stdout) # Exclude connections inside local network
+
 
         # Output is by default in bytes, so we will change it to string
         ips = output.decode()
